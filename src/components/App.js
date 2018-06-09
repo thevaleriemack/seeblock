@@ -3,6 +3,8 @@ import Balance from './Balance.js';
 import TransactionList from './TransactionList.js';
 import './App.css';
 
+const websocket = new WebSocket("wss://ws.blockchain.info/inv");
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -13,25 +15,34 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.openWebSocket("wss://ws.blockchain.info/inv");
+    this.openWebSocket();
+  }
+
+  openWebSocket = () => {
+    websocket.onopen = (event) => {
+      if (event.target.readyState === 1) {
+        console.log('Connection open...');
+        websocket.send('{"op":"ping"}');
+      }
+    }
+    websocket.onmessage = (event) => {
+      console.log(event);
+    }
+    websocket.onclose = (event) => {
+      console.log('Disconnected.');
+    }
+    websocket.onerror = (event) => {
+      console.log('Error:', event.data);
+    }
   }
 
   handleAddressLookup = (event) => {
-    // TODO: send the value to webhook and get response data
     let address = event.target.value;
+    // TODO: validation after user has stopped typing
     this.setState({ address: address }, () => {
       console.log(this.state.address);
+      websocket.send(`{"op":"addr_sub", "addr":${this.state.address}`);
     });
-  }
-
-  openWebSocket = (wsURI) => {
-    const websocket = new WebSocket(wsURI);
-    websocket.onopen = (event) => {
-      websocket.send({"op":"ping"});
-      if (event.target.readyState === 1) {
-        console.log('Connection open...')
-      };
-     };
   }
 
   render() {
