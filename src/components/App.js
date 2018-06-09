@@ -18,7 +18,10 @@ class App extends Component {
 
   handleAddressLookup = (event) => {
     // TODO: send the value to webhook and get response data
-    this.setState({ address: event.target.value });
+    let address = event.target.value;
+    this.setState({ address: address }, () => {
+      console.log(this.state.address);
+    });
   }
 
   openWebSocket = (wsURI) => {
@@ -39,7 +42,7 @@ class App extends Component {
           <input
             type="text"
             name="address"
-            defaultValue=""
+            value={this.state.address}
             onChange={this.handleAddressLookup}/>
         </header>
         <div>
