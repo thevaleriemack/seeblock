@@ -10,23 +10,27 @@ class App extends Component {
     super(props);
     this.state = {
       address: "",
-      data: null
+      updateReceived: false
     }
   }
 
   componentDidMount() {
+    // TODO: don't allow typing until connection is open
     this.openWebSocket();
   }
 
   openWebSocket = () => {
     websocket.onopen = (event) => {
       if (event.target.readyState === 1) {
-        console.log('Connection open...');
+        console.log('Connection open ...');
         websocket.send('{"op":"ping"}');
       }
     }
     websocket.onmessage = (event) => {
       console.log(event);
+      this.setState({
+        updateReceived: true
+      });
     }
     websocket.onclose = (event) => {
       console.log('Disconnected.');
@@ -40,8 +44,9 @@ class App extends Component {
     let address = event.target.value;
     // TODO: validation after user has stopped typing
     this.setState({ address: address }, () => {
-      console.log(this.state.address);
-      websocket.send(`{"op":"addr_sub", "addr":${this.state.address}`);
+      // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
+      websocket.send(`{"op":"addr_sub", "addr":"${this.state.address}"}`);
+      console.log(`Subscribed to ${this.state.address} ...`);
     });
   }
 
@@ -57,10 +62,10 @@ class App extends Component {
             onChange={this.handleAddressLookup}/>
         </header>
         <div>
-          <Balance data={this.state.data} />
+          <Balance address={this.state.address} />
         </div>
         <div>
-          <TransactionList data={this.state.data} />
+          <TransactionList address={this.state.address} />
         </div>
       </div>
     );
