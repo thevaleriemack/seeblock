@@ -7,10 +7,20 @@ class Balance extends Component {
       balance: ""
     }
   }
+
+  componentDidUpdate() {
+    this.getBalance();
+  }
+
+  getBalance = () => {
+    // TODO: send api req for address
+    console.log(this.props.address);
+  }
+
   render() {
     return(
       <div>
-        Balance for address {this.props.data}: {this.state.balance}
+        Balance for address {this.props.address}: {this.state.balance}
       </div>
     )
   }

@@ -17,12 +17,21 @@ class TransactionList extends Component {
     ))
   }
 
+  componentDidUpdate() {
+    this.updateTransactions();
+  }
+
+  updateTransactions = () => {
+    // TODO: send api req for address and add to state
+    console.log(this.props.address);
+  }
+
   render() {
-    const transactions = this.state.transactions;
+    // const transactions = this.state.transactions;
     return(
       <div>
-        <p>Transaction list for address {this.props.data}:</p>
-        {this.buildTransactionList(transactions)}
+        <p>Transaction list for address {this.props.address}:</p>
+        {this.buildTransactionList(this.state.transactions)}
       </div>
     )
   }
