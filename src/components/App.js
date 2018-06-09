@@ -12,9 +12,23 @@ class App extends Component {
     }
   }
 
+  componentDidMount() {
+    this.openWebSocket("wss://ws.blockchain.info/inv");
+  }
+
   handleAddressLookup = (event) => {
     // TODO: send the value to webhook and get response data
     this.setState({ address: event.target.value });
+  }
+
+  openWebSocket = (wsURI) => {
+    const websocket = new WebSocket(wsURI);
+    websocket.onopen = (event) => {
+      websocket.send({"op":"ping"});
+      if (event.target.readyState === 1) {
+        console.log('Connection open...')
+      };
+     };
   }
 
   render() {
