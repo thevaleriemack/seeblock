@@ -7,21 +7,32 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      address: ""
+      address: "",
+      data: null
     }
   }
+
+  handleAddressLookup = (event) => {
+    // TODO: send the value to webhook and get response data
+    this.setState({ address: event.target.value });
+  }
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Enter an address to watch</h1>
-          <input type="text" name="address" defaultValue="" />
+          <input
+            type="text"
+            name="address"
+            defaultValue=""
+            onChange={this.handleAddressLookup}/>
         </header>
         <div>
-          <Balance address={this.state.address} />
+          <Balance data={this.state.data} />
         </div>
         <div>
-          <TransactionList address={this.state.address} />
+          <TransactionList data={this.state.data} />
         </div>
       </div>
     );

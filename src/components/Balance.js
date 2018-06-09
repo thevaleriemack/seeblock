@@ -10,7 +10,7 @@ class Balance extends Component {
   render() {
     return(
       <div>
-        Balance for address {this.props.address}: {this.state.balance}
+        Balance for address {this.props.data}: {this.state.balance}
       </div>
     )
   }

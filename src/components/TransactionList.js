@@ -21,7 +21,7 @@ class TransactionList extends Component {
     const transactions = this.state.transactions;
     return(
       <div>
-        <p>Transaction list for address {this.props.address}:</p>
+        <p>Transaction list for address {this.props.data}:</p>
         {this.buildTransactionList(transactions)}
       </div>
     )
