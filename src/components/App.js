@@ -9,29 +9,28 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      connected: false,
       address: "",
       balance: "",
-      updateReceived: false
+      txs: [],
     }
   }
 
   componentDidMount() {
-    // TODO: don't allow typing until connection is open
     this.openWebSocket();
   }
 
   openWebSocket = () => {
     websocket.onopen = (event) => {
       if (event.target.readyState === 1) {
-        console.log('Connection open ...');
-        websocket.send('{"op":"ping"}');
+        this.setState({
+          connected: true
+        });
+        // TODO: allow input only if we are connected
       }
     }
     websocket.onmessage = (event) => {
       console.log(event);
-      this.setState({
-        updateReceived: true
-      });
     }
     websocket.onclose = (event) => {
       console.log('Disconnected.');
@@ -44,32 +43,41 @@ class App extends Component {
   handleAddressLookup = (event) => {
     let address = event.target.value;
     // TODO: validation after user has stopped typing
-    this.getBalance(address);
+    this.subscribeToAddress(address);
+  }
+
+  subscribeToAddress = (address) => {
     this.setState({ address: address }, () => {
       // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
+      let balanceURL = `https://blockchain.info/q/addressbalance/${address}`;
+      let txsURL = `https://blockchain.info/multiaddr?active=${address}&n=2&cors=true`;
+      this.fetchDataToState(balanceURL, 'balance');
+      this.fetchDataToState(txsURL, 'txs');
       websocket.send(`{"op":"addr_sub", "addr":"${this.state.address}"}`);
       console.log(`Subscribed to ${this.state.address} ...`);
     });
   }
 
-  getBalance = (address) => {
-    console.log('get balance called');
-    // TODO: fix app to check address on keyup
-    // TODO: if address is not valid, balance should be blank
-    if (address) {
-      let apiURI = `https://blockchain.info/q/addressbalance/${address}`;
-      fetch(apiURI)
+  fetchDataToState = (url, stateName) => {
+    fetch(url)
       .then(res => res.json())
-      .then(
-        (data) => {
-          this.setState({
-            balance: data
-          });
-        }, (err) => {
-          console.log(err);
+      .then(data => {
+        if (stateName === 'balance') {
+          this.setState({ balance: data })
         }
-      );
-    }
+        if (stateName === 'txs') {
+          this.setState({ txs: data.txs })
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        if (stateName === 'balance') {
+          this.setState({ balance: "" })
+        }
+        if (stateName === 'txs') {
+          this.setState({ txs: [] })
+        }
+      });
   }
 
   render() {
@@ -84,10 +92,10 @@ class App extends Component {
             onChange={this.handleAddressLookup}/>
         </header>
         <div>
-          <Balance balance={this.state.balance} />
+          <Balance address={this.state.address} balance={this.state.balance} />
         </div>
         <div>
-          <TransactionList address={this.state.address} />
+          <TransactionList address={this.state.address} txs={this.state.txs} />
         </div>
       </div>
     );

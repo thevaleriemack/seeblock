@@ -7,7 +7,7 @@ class Transaction extends Component {
   }
   render() {
     return(
-      <div>Transaction: {this.props.data}</div>
+      <div>Transaction: {this.props.hash}</div>
     )
   }
 }

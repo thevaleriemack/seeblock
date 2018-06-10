@@ -2,36 +2,21 @@ import React, { Component } from 'react';
 import Transaction from './Transaction.js';
 
 class TransactionList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      transactions: []
-    }
-  }
 
-  buildTransactionList = (transactions) => {
-    return transactions.map((tx) => (
+  buildTransactionList = (txs) => {
+    return txs.map((tx) => (
       <Transaction
-        key={tx.id}
-        data={tx.data} />
+        key={tx.hash}
+        hash={tx.hash} />
     ))
   }
 
-  componentDidUpdate() {
-    this.updateTransactions();
-  }
-
-  updateTransactions = () => {
-    // TODO: send api req for address and add to state
-    console.log(this.props.address);
-  }
-
   render() {
-    // const transactions = this.state.transactions;
     return(
       <div>
         <p>Transaction list for address {this.props.address}:</p>
-        {this.buildTransactionList(this.state.transactions)}
+        <p>{this.props.tx}</p>
+        {this.buildTransactionList(this.props.txs)}
       </div>
     )
   }
