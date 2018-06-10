@@ -4,23 +4,28 @@ class Balance extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      address: "",
       balance: ""
     }
   }
 
-  componentDidUpdate() {
-    this.getBalance();
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.address === prevState.address) {
+      return null;
+    }
+    return {
+      address: nextProps.address
+    };
   }
 
-  getBalance = () => {
-    // TODO: send api req for address
-    console.log(this.props.address);
+  componentWillUnmount() {
+    // TODO: keep track of inflight AJAX requests and cancel them
   }
 
   render() {
     return(
       <div>
-        Balance for address {this.props.address}: {this.state.balance}
+        Balance: {this.props.balance}
       </div>
     )
   }
