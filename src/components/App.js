@@ -82,7 +82,7 @@ class App extends Component {
         return data;
       })
       .catch(err => {
-        null
+        // pass
       });
   }
 
