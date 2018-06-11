@@ -12,7 +12,7 @@ class App extends Component {
       connected: false,
       address: "",
       balance: "",
-      txs: [],
+      txData: {},
     }
   }
 
@@ -23,12 +23,11 @@ class App extends Component {
   openWebSocket = () => {
     websocket.onopen = (event) => {
       if (event.target.readyState === 1) {
-        this.setState({
-          connected: true
-        });
+        this.setState({ connected: true });
       }
     }
     websocket.onmessage = (event) => {
+      // TODO: re-render children
       console.log(event);
     }
     websocket.onclose = (event) => {
@@ -49,16 +48,18 @@ class App extends Component {
       // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
       let cleanedAddress = address.trim();
       if (cleanedAddress === '') {
-        console.error(
-          'Input must not be blank');
+        this.setState({ balance: "" });
+        this.setState({ txData: {} });
+        console.error('Input must not be blank');
         return;
       }
       let balanceURL = `https://blockchain.info/q/addressbalance/${cleanedAddress}`;
       let txsURL = `https://blockchain.info/multiaddr?active=${cleanedAddress}&cors=true`;
-      if (
-        this.fetchDataToState(balanceURL, 'balance')
-        && this.fetchDataToState(txsURL, 'txs')
-      ) {
+
+      this.fetchData(balanceURL).then(out => this.setState({balance: out}));
+      this.fetchData(txsURL).then(out => this.setState({txData: out}));
+
+      if (this.state.balance) {
         websocket.send(`{"op":"addr_sub", "addr":"${cleanedAddress}"}`);
         console.log(`Subscribed to ${cleanedAddress} ...`);
       }
@@ -73,26 +74,15 @@ class App extends Component {
     }
   }
 
-  fetchDataToState = (url, stateName) => {
-    fetch(url)
+  fetchData = (url) => {
+    return fetch(url)
       .then(this.handleErrors)
       .then(res => res.json())
       .then(data => {
-        if (stateName === 'balance') {
-          this.setState({ balance: data })
-        }
-        if (stateName === 'txs') {
-          this.setState({ txs: data.txs })
-        }
+        return data;
       })
       .catch(err => {
-        console.error(err);
-        if (stateName === 'balance') {
-          this.setState({ balance: "" })
-        }
-        if (stateName === 'txs') {
-          this.setState({ txs: [] })
-        }
+        null
       });
   }
 
@@ -116,7 +106,7 @@ class App extends Component {
           <Balance address={this.state.address} balance={this.state.balance} />
         </div>
         <div>
-          <TransactionList address={this.state.address} txs={this.state.txs} />
+          <TransactionList address={this.state.address} txData={this.state.txData} />
         </div>
       </div>
     );
