@@ -12,7 +12,7 @@ class Balance extends Component {
           <div className="balanceBlock">
             <p>Balance</p>
             <h2>
-              {balance} BTC
+              {balance*0.00000001} BTC
             </h2>
           </div>
         }

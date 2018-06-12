@@ -106,6 +106,7 @@ class App extends Component {
         <header className="App-header">
           <h1>Seeblock</h1>
           <div className="App-address">
+          <p>Test address: 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3</p>
           { connected ? (
             <input
               className="addressInput"
