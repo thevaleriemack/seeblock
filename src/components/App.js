@@ -4,6 +4,7 @@ import TransactionList from './TransactionList.js';
 import './App.css';
 
 const websocket = new WebSocket("wss://ws.blockchain.info/inv");
+let timeout = null;
 
 class App extends Component {
   constructor(props) {
@@ -39,31 +40,33 @@ class App extends Component {
   }
 
   handleAddressLookup = (event) => {
+    clearTimeout(timeout);
     let address = event.target.value;
-    this.subscribeToAddress(address);
+    this.setState({ address: address });
+    timeout = setTimeout(() => {
+      this.subscribeToAddress(this.state.address);
+    }, 300);
   }
 
   subscribeToAddress = (address) => {
-    this.setState({ address: address }, () => {
-      // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
-      let cleanedAddress = address.trim();
-      if (cleanedAddress === '') {
-        this.setState({ balance: "" });
-        this.setState({ txData: {} });
-        console.error('Input must not be blank');
-        return;
-      }
-      let balanceURL = `https://blockchain.info/q/addressbalance/${cleanedAddress}`;
-      let txsURL = `https://blockchain.info/multiaddr?active=${cleanedAddress}&cors=true`;
+    // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
+    let cleanedAddress = address.trim();
+    if (cleanedAddress === '') {
+      this.setState({ balance: "" });
+      this.setState({ txData: {} });
+      console.error('Input must not be blank');
+      return;
+    }
+    let balanceURL = `https://blockchain.info/q/addressbalance/${cleanedAddress}`;
+    let txsURL = `https://blockchain.info/multiaddr?active=${cleanedAddress}&cors=true`;
 
-      this.fetchData(balanceURL).then(out => this.setState({balance: out}));
-      this.fetchData(txsURL).then(out => this.setState({txData: out}));
+    this.fetchData(balanceURL).then(out => this.setState({balance: out}));
+    this.fetchData(txsURL).then(out => this.setState({txData: out}));
 
-      if (this.state.balance) {
-        websocket.send(`{"op":"addr_sub", "addr":"${cleanedAddress}"}`);
-        console.log(`Subscribed to ${cleanedAddress} ...`);
-      }
-    });
+    if (this.state.balance) {
+      websocket.send(`{"op":"addr_sub", "addr":"${cleanedAddress}"}`);
+      console.log(`Subscribed to ${cleanedAddress} ...`);
+    }
   }
 
   handleErrors = (res) => {
@@ -97,7 +100,8 @@ class App extends Component {
               type="text"
               name="address"
               value={this.state.address}
-              onChange={this.handleAddressLookup}/>
+              onChange={this.handleAddressLookup}
+              onKeyDown={this.handleInput}/>
             ) : (
               'Loading...'
             )}
