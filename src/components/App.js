@@ -41,32 +41,42 @@ class App extends Component {
 
   handleAddressLookup = (event) => {
     clearTimeout(timeout);
-    let address = event.target.value;
-    this.setState({ address: address });
+    let prevAddress = this.state.address.trim();
+    this.unsubscribeFromAddress(prevAddress);
+    let tempAddress = event.target.value;
+    this.setState({ address: tempAddress });
     timeout = setTimeout(() => {
-      this.subscribeToAddress(this.state.address);
+      let currAddress = this.state.address.trim();
+      this.subscribeToAddress(currAddress);
     }, 300);
+  }
+
+  unsubscribeFromAddress = (address) => {
+    let cleanedAddress = address.trim();
+    websocket.send(`{"op":"addr_unsub", "addr":"${cleanedAddress}"}`);
+    console.log(`Unsubscribed from ${cleanedAddress}`);
   }
 
   subscribeToAddress = (address) => {
     // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
-    let cleanedAddress = address.trim();
-    if (cleanedAddress === '') {
+    if (address === '') {
       this.setState({ balance: "" });
       this.setState({ txData: {} });
       console.error('Input must not be blank');
       return;
     }
-    let balanceURL = `https://blockchain.info/q/addressbalance/${cleanedAddress}`;
-    let txsURL = `https://blockchain.info/multiaddr?active=${cleanedAddress}&cors=true`;
+    let balanceURL = `https://blockchain.info/q/addressbalance/${address}`;
+    let txsURL = `https://blockchain.info/multiaddr?active=${address}&cors=true`;
 
-    this.fetchData(balanceURL).then(out => this.setState({balance: out}));
+    this.fetchData(balanceURL).then(out => {
+      this.setState({balance: out});
+      if (this.state.balance) {
+        websocket.send(`{"op":"addr_sub", "addr":"${address}"}`);
+        console.log(`Subscribed to ${address}`);
+      }
+    });
     this.fetchData(txsURL).then(out => this.setState({txData: out}));
 
-    if (this.state.balance) {
-      websocket.send(`{"op":"addr_sub", "addr":"${cleanedAddress}"}`);
-      console.log(`Subscribed to ${cleanedAddress} ...`);
-    }
   }
 
   handleErrors = (res) => {
