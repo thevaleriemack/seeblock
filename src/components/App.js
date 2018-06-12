@@ -28,8 +28,8 @@ class App extends Component {
       }
     }
     websocket.onmessage = (event) => {
-      // TODO: re-render children
       console.log(event);
+      this.forceUpdate();
     }
     websocket.onclose = (event) => {
       console.log('Disconnected.');
@@ -40,6 +40,7 @@ class App extends Component {
   }
 
   handleAddressLookup = (event) => {
+    // TODO: if connection is closed, try to reconnect
     clearTimeout(timeout);
     let prevAddress = this.state.address.trim();
     this.unsubscribeFromAddress(prevAddress);
@@ -58,13 +59,13 @@ class App extends Component {
   }
 
   subscribeToAddress = (address) => {
-    // 13hQVEstgo4iPQZv9C7VELnLWF7UWtF4Q3
     if (address === '') {
       this.setState({ balance: "" });
       this.setState({ txData: {} });
       console.error('Input must not be blank');
       return;
     }
+
     let balanceURL = `https://blockchain.info/q/addressbalance/${address}`;
     let txsURL = `https://blockchain.info/multiaddr?active=${address}&cors=true`;
 
@@ -76,7 +77,6 @@ class App extends Component {
       }
     });
     this.fetchData(txsURL).then(out => this.setState({txData: out}));
-
   }
 
   handleErrors = (res) => {
@@ -104,21 +104,23 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <h1 className="App-title">Enter an address to watch</h1>
+          <h1>Seeblock</h1>
+          <div className="App-address">
           { connected ? (
             <input
+              className="addressInput"
               type="text"
               name="address"
+              placeholder='Enter a Bitcoin address to watch'
               value={this.state.address}
               onChange={this.handleAddressLookup}
               onKeyDown={this.handleInput}/>
             ) : (
               'Loading...'
             )}
-        </header>
-        <div>
+          </div>
           <Balance address={this.state.address} balance={this.state.balance} />
-        </div>
+        </header>
         <div>
           <TransactionList address={this.state.address} txData={this.state.txData} />
         </div>

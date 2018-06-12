@@ -1,6 +1,6 @@
 {
-  "short_name": "Addr Track",
-  "name": "Address Tracker",
+  "short_name": "Seeblock",
+  "name": "Seeblock",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",

@@ -1,0 +1,51 @@
+.tx {
+  text-align: center;
+  border: 1px solid gray;
+  margin: 0px auto 20px auto;
+  width: 90%;
+  padding: 10px 0;
+}
+
+.txPuts {
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.puts {
+  width: 50%;
+  margin: 0 auto;
+  float:right;
+}
+
+.putsTitle {
+  text-transform: uppercase;
+}
+
+.txValue {
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+  .tx {
+    font-size: .8em;
+    text-align: center;
+    border: 1px solid gray;
+    margin: 0px auto 20px auto;
+    overflow-y: hidden;
+  }
+
+  .txPuts {
+    max-height: 100%;
+  }
+
+  .puts {
+    width: 100%;
+    margin: 0 auto;
+    float: none;
+  }
+
+}

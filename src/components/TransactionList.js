@@ -8,7 +8,10 @@ class TransactionList extends Component {
       return txData.txs.map((tx) => (
         <Transaction
           key={tx.hash}
-          hash={tx.hash} />
+          hash={tx.hash}
+          inputs={tx.inputs}
+          outputs={tx.out}
+          time={tx.time} />
       ))
     }
   }
@@ -16,7 +19,6 @@ class TransactionList extends Component {
   render() {
     return(
       <div>
-        <p>Transaction list for address {this.props.address}:</p>
         {this.buildTransactionList(this.props.txData)}
       </div>
     )
